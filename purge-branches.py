@@ -8,7 +8,7 @@ import argparse
 from libtools import *
 
 SCRIPT_FOLDER = 'git-tools'
-CONFIG_FILENAME = 'exclude-branch.json'
+CONFIG_FILENAME = 'purge-exclusion.txt'
 
 parser = argparse.ArgumentParser(
     description="Clear repository from unnecessary branches.",
@@ -44,7 +44,7 @@ def run():
 
         # Get repos that is excluded from the purge
         with open(get_config_file_full_path(SCRIPT_FOLDER, CONFIG_FILENAME),
-            'r+') as config_file:
+            'a+') as config_file:
                 exclusion_repos = config_file.read()
 
         
