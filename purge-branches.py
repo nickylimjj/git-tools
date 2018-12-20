@@ -1,6 +1,14 @@
 #!/usr/bin/python3
+import os
+import json
+
 import subprocess
 import argparse
+
+from libtools import *
+
+SCRIPT_FOLDER = 'git-tools'
+CONFIG_FILENAME = 'exclude-branch.json'
 
 parser = argparse.ArgumentParser(
     description="Clear repository from unnecessary branches.",
@@ -19,7 +27,6 @@ parser.add_argument(
     help="only report, doesn't do any real changes"
 )
 
-
 def run():
     args = parser.parse_args()
 
@@ -34,11 +41,26 @@ def run():
     if git_process.returncode != 0:
         print("something wrong: %s" % git_process.stderr)
     else:
-        repositories = [
-            repo.replace(" ", "")
+        try:
+            with open(get_config_file_full_path(SCRIPT_FOLDER, CONFIG_FILENAME),
+                    'r') as config_file:
+                    exclusion_repos = config_file.read()
+            print(exclusion_repos)
+        except FileNotFoundError:
+            print("Error while reading options: file does not exist.")
+
+        
+        all_repositories = [
+            repo.lstrip().rstrip()
             for repo in git_process.stdout.split("\n")
-            if repo != "" and repo != "  master" and not repo.startswith("* ")
         ]
+
+        # cull to repos that need to be deleted
+        repositories = [repo for repo in all_repositories 
+            if repo != "" and repo != "master" and not repo.startswith("* ")
+                and repo not in exclusion_repos
+        ]
+        print(repositories)
 
         repo_count = len(repositories)
         if repo_count == 0:

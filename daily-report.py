@@ -1,6 +1,7 @@
 import os
 import json
 import argparse
+from libtools import *
 
 from dateutil.parser import parse
 from datetime import date, datetime, timedelta
@@ -68,26 +69,10 @@ parser.add_argument(
     help='list repositories stored in configuration file'
 )
 
-
-def get_config_path():
-    xdg_config_home_dir = os.environ.get('XDG_CONFIG_HOME', '')
-    home_dir = os.environ.get('HOME', '')
-    path = ""
-    if xdg_config_home_dir:
-        path = os.path.join(xdg_config_home_dir, SCRIPT_FOLDER)
-    elif home_dir:
-        path = os.path.join(home_dir, '.config', SCRIPT_FOLDER)
-    return path
-
-
-def get_config_file_full_path():
-    return os.path.join(get_config_path(), CONFIG_FILENAME)
-
-
 def get_options():
     options = {}
     try:
-        with open(get_config_file_full_path()) as config_file:
+        with open(get_config_file_full_path(SCRIPT_FOLDER, CONFIG_FILENAME)) as config_file:
             options = json.load(config_file)
     except FileNotFoundError:
         print("Error while reading options: file does not exist.")
@@ -95,9 +80,9 @@ def get_options():
 
 
 def save_options(options):
-    os.makedirs(get_config_path(), exist_ok=True)
+    os.makedirs(get_config_path(SCRIPT_FOLDER), exist_ok=True)
 
-    with open(get_config_file_full_path(), 'w') as config_file:
+    with open(get_config_file_full_path(SCRIPT_FOLDER, CONFIG_FILENAME), 'w') as config_file:
         json.dump(options, config_file)
 
 
