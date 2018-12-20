@@ -41,13 +41,11 @@ def run():
     if git_process.returncode != 0:
         print("something wrong: %s" % git_process.stderr)
     else:
-        try:
-            with open(get_config_file_full_path(SCRIPT_FOLDER, CONFIG_FILENAME),
-                    'r') as config_file:
-                    exclusion_repos = config_file.read()
-            print(exclusion_repos)
-        except FileNotFoundError:
-            print("Error while reading options: file does not exist.")
+
+        # Get repos that is excluded from the purge
+        with open(get_config_file_full_path(SCRIPT_FOLDER, CONFIG_FILENAME),
+            'r+') as config_file:
+                exclusion_repos = config_file.read()
 
         
         all_repositories = [
@@ -55,12 +53,11 @@ def run():
             for repo in git_process.stdout.split("\n")
         ]
 
-        # cull to repos that need to be deleted
+        # filter repos to those that can be purged
         repositories = [repo for repo in all_repositories 
             if repo != "" and repo != "master" and not repo.startswith("* ")
                 and repo not in exclusion_repos
         ]
-        print(repositories)
 
         repo_count = len(repositories)
         if repo_count == 0:
